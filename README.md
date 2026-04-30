@@ -1,3 +1,14 @@
+---
+title: MediShield Document Classifier
+emoji: 🏥
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 8000
+pinned: false
+license: mit
+---
+
 # MediShield AI Document Classifier
 
 > Automatically classify scanned insurance documents — bills, KYC identity proofs, prescriptions, lab reports and more — using a three-stage pipeline: filename rules → OCR → Gemini LLM.
@@ -7,6 +18,8 @@
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.136-green)
 ![Tests](https://img.shields.io/badge/tests-117%20passing-brightgreen)
+
+**🚀 Live demo:** https://medishield-classifier.delightfulstone-0aa1ec8b.eastus.azurecontainerapps.io
 
 ---
 

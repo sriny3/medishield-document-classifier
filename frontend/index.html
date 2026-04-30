@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- API base URL. Empty = same-origin (Azure / HF Spaces). For Vercel
+       deploys, override with the public Hugging Face Space URL. -->
+  <meta name="api-base" content="https://sriny2131-medishield.hf.space" />
   <title>MediShield Document Classifier</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -341,7 +344,9 @@
 </div>
 
 <script>
-  const API_BASE = "";
+  // Same-origin by default (when served by FastAPI). Overridable via
+  // <meta name="api-base"> for cross-origin deploys (Vercel → HF Space).
+  const API_BASE = document.querySelector('meta[name="api-base"]')?.content || "";
 
   const dropZone       = document.getElementById("drop-zone");
   const fileInput      = document.getElementById("file-input");
