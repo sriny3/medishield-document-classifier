@@ -8,7 +8,9 @@ Runs four steps in order, each idempotent:
   4. wait + GET /health            — block until the Space is healthy.
 
 Usage:
-  HF_TOKEN=hf_...  GOOGLE_API_KEY=AIza...  python infra/deploy_huggingface.py
+  python infra/deploy_huggingface.py
+  # Reads HF_TOKEN and GOOGLE_API_KEY from .env at the project root.
+  # Env vars take precedence if also exported in the shell.
 """
 
 from __future__ import annotations
@@ -19,12 +21,19 @@ import time
 from pathlib import Path
 
 import requests
+from dotenv import load_dotenv
 from huggingface_hub import HfApi, add_space_secret, create_repo, upload_folder
 from huggingface_hub.utils import HfHubHTTPError
 
+# Load HF_TOKEN and GOOGLE_API_KEY from the project's .env so secrets
+# never need to be pasted on the command line.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+
 # ─────────────────────────── config ───────────────────────────
-HF_USERNAME = "sriny2131"
-SPACE_NAME = "medishield"
+# Username / Space name come from .env so this script is portable.
+# Sensible defaults match the project convention if .env omits them.
+HF_USERNAME = os.environ.get("HF_USERNAME", "sriny2131")
+SPACE_NAME = os.environ.get("HF_SPACE_NAME", "medishield")
 SPACE_ID = f"{HF_USERNAME}/{SPACE_NAME}"
 SPACE_SDK = "docker"
 SPACE_URL = f"https://{HF_USERNAME}-{SPACE_NAME}.hf.space"

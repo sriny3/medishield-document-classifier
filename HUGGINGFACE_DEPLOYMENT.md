@@ -53,8 +53,16 @@ pip install huggingface_hub requests
 ```bash
 export HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxxxxx
 export GOOGLE_API_KEY=AIzaSyxxxxxxxxxxxxxxxx
+# Force UTF-8 stdout so the Unicode step banners don't crash on Windows cp1252.
+export PYTHONIOENCODING=utf-8
+export PYTHONUTF8=1
 python infra/deploy_huggingface.py
 ```
+
+> **Windows note:** without `PYTHONIOENCODING=utf-8` the script crashes with
+> `UnicodeEncodeError: 'charmap' codec can't encode characters …` because
+> Python's default stdout encoding on Windows (`cp1252`) doesn't support
+> the `──` box-drawing characters used in the step banners.
 
 What it does, in order:
 
@@ -126,10 +134,33 @@ git push hf main
 # (when prompted for password, paste your HF write token)
 ```
 
+## Run log — first deploy (2026-04-29)
+
+This section is filled in as the deploy progresses so the doc reflects
+what actually happened, not just what was planned.
+
+| Phase | Outcome |
+|---|---|
+| Install `huggingface_hub` 0.36.2 | ✅ done locally |
+| First script run on Windows | ❌ `UnicodeEncodeError` on `──` banners — fixed by `PYTHONIOENCODING=utf-8` |
+| Second script run | ❌ 0-byte output file for minutes — Python block-buffered stdout, fixed by `PYTHONUNBUFFERED=1` + `python -u` |
+| Step 1 — `create_repo sriny2131/medishield` | ✅ Space ready |
+| Step 2 — `add_space_secret GOOGLE_API_KEY` | ✅ secret set |
+| Step 3 — `upload_folder` (repo sync) | ✅ repo synced, HF building Docker image |
+| Step 4 — `/health` poll until 200 | ✅ `{"status":"ok"}` |
+| Live URL | ✅ <https://sriny2131-medishield.hf.space> |
+| Multi-file smoke test (5 files, 1 request) | ✅ NDJSON streamed correctly: 3 bills (rules, 0–5 ms) + 2 KYC docs (OCR, ~14 s), total 16.7 s |
+
+After the deploy succeeds, **rotate both secrets immediately** — they
+were pasted into the chat transcript:
+- HF token: <https://huggingface.co/settings/tokens>
+- Gemini key: <https://aistudio.google.com/app/apikey>
+
 ## What the script doesn't touch
 
 - Your Azure deployment. It keeps running until you tear it down.
 - Your local `.env`. The Space gets its key from HF Secrets, not from
   any local file.
-- The Vercel frontend. Deploy that separately following step 4 of
-  [MIGRATION_HF_VERCEL.md](MIGRATION_HF_VERCEL.md).
+- The frontend. The Dockerfile bundles `frontend/index.html` into the
+  same image and FastAPI serves it at `/`, so the Space URL hosts both
+  the API and the UI.

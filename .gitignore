@@ -10,7 +10,9 @@ wheels/
 .venv
 .env
 .vscode
-.claude/
+.claude/*
+# Skills are intended to ship with the repo
+!.claude/skills/
 
 # Local-only documents — not for version control
 linkedin_post.md
