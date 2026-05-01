@@ -86,7 +86,6 @@ Mark the deploy complete only after this returns 200. Do not trust the script's 
 
 ## What the script does NOT do
 
-- Does not tear down Azure. Run `bash infra/teardown.sh` separately if migrating off paid infra.
 - Does not commit to GitHub. Run `git add . && git commit && git push` separately to keep GitHub in sync (HF Spaces have their own git history).
 
 ## Frontend note

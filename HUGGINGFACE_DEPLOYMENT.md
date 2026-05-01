@@ -23,7 +23,7 @@ Hugging Face Space. Follow it top to bottom.
 |---|---|
 | HF account | <https://huggingface.co/join> — username `sriny2131` |
 | HF write token | <https://huggingface.co/settings/tokens> → **New token** → role **Write**. Copy the `hf_…` string somewhere safe; you cannot view it again. |
-| Gemini API key | <https://aistudio.google.com/app/apikey> — same key you used on Azure. |
+| Gemini API key | <https://aistudio.google.com/app/apikey> |
 | Local Python | Already installed (3.12). The script auto-imports `huggingface_hub` and `requests`. |
 
 ---
@@ -102,16 +102,6 @@ The frontend already reads the Space URL from a meta tag set in
 
 If you change the Space name, update this and redeploy the frontend.
 
-## Step 6 — Optional: tear down Azure
-
-Once the Space is live and you've smoke-tested it:
-
-```bash
-bash infra/teardown.sh
-```
-
-This deletes the entire `medishield-rg` resource group and stops billing.
-
 ---
 
 ## Manual fallback (if the script can't run)
@@ -158,7 +148,6 @@ were pasted into the chat transcript:
 
 ## What the script doesn't touch
 
-- Your Azure deployment. It keeps running until you tear it down.
 - Your local `.env`. The Space gets its key from HF Secrets, not from
   any local file.
 - The frontend. The Dockerfile bundles `frontend/index.html` into the
