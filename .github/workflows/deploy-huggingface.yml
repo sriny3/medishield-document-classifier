@@ -1,0 +1,66 @@
+name: Deploy to Hugging Face Space
+
+# Push-to-main → Hugging Face Spaces (free CPU). Azure deploy is now
+# manual-only via deploy.yml.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: hf-deploy
+  cancel-in-progress: false  # don't cancel a running upload mid-flight
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Run tests
+        run: uv run python -m pytest tests/ -q --tb=short
+        env:
+          GOOGLE_API_KEY: dummy-key-for-tests
+          LANGCHAIN_TRACING_V2: "false"
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deploy deps
+        run: pip install --quiet huggingface_hub python-dotenv requests
+
+      # Run the same script we use locally. It is idempotent —
+      # create_repo / add_space_secret / upload_folder all upsert.
+      - name: Deploy to Hugging Face Space
+        env:
+          HF_USERNAME: ${{ vars.HF_USERNAME || 'sriny2131' }}
+          HF_SPACE_NAME: ${{ vars.HF_SPACE_NAME || 'medishield' }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+          PYTHONIOENCODING: "utf-8"
+        run: python -u infra/deploy_huggingface.py
+
+      - name: Print live URL
+        env:
+          HF_USERNAME: ${{ vars.HF_USERNAME || 'sriny2131' }}
+          HF_SPACE_NAME: ${{ vars.HF_SPACE_NAME || 'medishield' }}
+        run: echo "🚀 Deployed https://${HF_USERNAME}-${HF_SPACE_NAME}.hf.space"
