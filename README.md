@@ -19,7 +19,7 @@ license: mit
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.136-green)
 ![Tests](https://img.shields.io/badge/tests-117%20passing-brightgreen)
 
-**🚀 Live demo:** https://medishield-classifier.delightfulstone-0aa1ec8b.eastus.azurecontainerapps.io
+**🚀 Live demo:** https://sriny2131-medishield.hf.space (Hugging Face Spaces, free CPU)
 
 ---
 
